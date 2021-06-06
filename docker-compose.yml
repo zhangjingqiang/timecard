@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    volumes:
+      - ./api/:/usr/src/app/
+    ports:
+      - 5000:5000
+    env_file:
+      - ./api/.env
+    depends_on:
+      - db
+
+  batch:
+    build:
+      context: ./batch
+      dockerfile: Dockerfile
+    volumes:
+      - ./batch/:/app/
+    environment:
+      DB_USER: postgres
+      DB_NAME: timecard
+      DB_PASS: 12345
+      REDIS_ADDR: redis:6379
+      REDIS_PASS: 12345
+    depends_on:
+      - db
+      - redis
+    links:
+      - db
+      - redis
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    volumes:
+      - './client:/usr/src/app/'
+      - '/usr/src/app/node_modules'
+    ports:
+      - 3000:3000
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - api
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - 80:80
+    depends_on:
+      - api
+      - client
+    
+  db:
+    image: postgres:13-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_PASSWORD: 12345
+      POSTGRES_DB: timecard
+
+  redis:
+    image: redis
+    command: redis-server --requirepass 12345
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_data:
+  redis_data:

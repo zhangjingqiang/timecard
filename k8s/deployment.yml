@@ -1,0 +1,96 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: timecard-api
+  namespace: timecard
+spec:
+  selector:
+    matchLabels:
+      app: timecard-api
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: timecard-api
+    spec:
+      containers:
+        - name: timecard-api
+          image: asia.gcr.io/timecard-proj/timecard-api
+          env:
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: timecard
+                  key: db_user
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: timecard
+                  key: db_name
+            - name: DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: timecard
+                  key: db_pass
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /secrets/appkey.json
+          volumeMounts:
+            - name: service-account-credentials
+              mountPath: /secrets
+              readOnly: true
+          ports:
+          - containerPort: 5000
+      volumes:
+        - name: service-account-credentials
+          secret:
+            secretName: appkey
+      restartPolicy: Always
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: timecard-web
+  namespace: timecard
+spec:
+  selector:
+    matchLabels:
+      app: timecard-web
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: timecard-web
+    spec:
+      containers:
+        - name: timecard-web
+          image: asia.gcr.io/timecard-proj/timecard-web
+          env:
+            - name: NODE_ENV
+              valueFrom:
+                secretKeyRef:
+                  name: timecard
+                  key: node_env
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /secrets/appkey.json
+          volumeMounts:
+            - name: service-account-credentials
+              mountPath: /secrets
+              readOnly: true
+          ports:
+          - containerPort: 3000
+          livenessProbe:
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            exec:
+              command:
+                - "true"
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+      volumes:
+        - name: service-account-credentials
+          secret:
+            secretName: appkey
+      restartPolicy: Always

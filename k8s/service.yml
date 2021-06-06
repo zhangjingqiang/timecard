@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: timecard-api
+  namespace: timecard
+spec:
+  type: NodePort
+  ports:
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 5000
+  selector:
+    app: timecard-api
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: timecard-web
+  namespace: timecard
+spec:
+  type: NodePort
+  ports:
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 3000
+  selector:
+    app: timecard-web

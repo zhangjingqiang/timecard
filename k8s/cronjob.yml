@@ -1,0 +1,54 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: timecard-batch
+  namespace: timecard
+spec:
+  schedule: "*/10 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: timecard-batch
+              image: asia.gcr.io/timecard-proj/timecard-batch
+              env:
+                - name: DB_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: timecard
+                      key: db_user
+                - name: DB_NAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: timecard
+                      key: db_name
+                - name: DB_PASS
+                  valueFrom:
+                    secretKeyRef:
+                      name: timecard
+                      key: db_pass
+                - name: REDIS_ADDR
+                  valueFrom:
+                    secretKeyRef:
+                      name: timecard
+                      key: redis_addr
+                - name: REDIS_PASS
+                  valueFrom:
+                    secretKeyRef:
+                      name: timecard
+                      key: redis_pass
+                - name: GOOGLE_APPLICATION_CREDENTIALS
+                  value: /secrets/appkey.json
+              volumeMounts:
+                - name: service-account-credentials
+                  mountPath: /secrets
+                  readOnly: true
+          volumes:
+            - name: service-account-credentials
+              secret:
+                secretName: appkey
+          restartPolicy: OnFailure
