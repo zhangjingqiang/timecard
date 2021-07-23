@@ -1,0 +1,113 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: logstash-log-pipeline
+  namespace: beats
+spec:
+  serviceName: logstash
+  selector:
+    matchLabels:
+      app: logstash-log-pipeline
+  updateStrategy:
+    type: RollingUpdate
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: logstash-log-pipeline
+    spec:
+      nodeSelector:
+        purpose: log-pipeline-logstash
+      terminationGracePeriodSeconds: 30
+      initContainers:
+      - name: init-pvc
+        image: alpine
+        command:
+        - sh
+        - "-c"
+        - |
+          set -ex
+          mkdir -p /tmp/logstash_access_logs
+          mkdir -p /tmp/logstash_action_logs
+          chown -R 1000:1000 /tmp/logstash_access_logs
+          chown -R 1000:1000 /tmp/logstash_action_logs
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: logstash-data-access-logs
+          mountPath: /tmp/logstash_access_logs
+        - name: logstash-data-action-logs
+          mountPath: /tmp/logstash_action_logs
+      containers:
+      - name: logstash
+        image: asia.gcr.io/contents-search-windows/logstash-log-pipeline:latest
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 2Gi
+        ports:
+          - containerPort: 5044
+        volumeMounts:
+          - name: config-volume
+            mountPath: /usr/share/logstash/config
+          - name: logstash-pipeline-volume
+            mountPath: /usr/share/logstash/pipeline
+          - name: service-account-credentials
+            mountPath: /secrets/service_account
+            readOnly: true
+          - name: logstash-data-access-logs
+            mountPath: /tmp/logstash_access_logs
+          - name: logstash-data-action-logs
+            mountPath: /tmp/logstash_action_logs
+        # https://github.com/elastic/logstash/issues/3782#issuecomment-219595202
+        # https://www.elastic.co/guide/en/logstash/current/monitoring-logstash.html#monitoring
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 9600
+          initialDelaySeconds: 90
+          periodSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+          timeoutSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 9600
+          initialDelaySeconds: 90
+          periodSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+          timeoutSeconds: 3
+      volumes:
+        - name: config-volume
+          configMap:
+            name: configmap-logstash
+            items:
+              - key: logstash.yml
+                path: logstash.yml
+        - name: logstash-pipeline-volume
+          configMap:
+            name: configmap-logstash
+            items:
+              - key: logstash.conf
+                path: logstash.conf
+        - name: service-account-credentials
+          secret:
+            secretName: log-pipeline-service-account-credentials
+  volumeClaimTemplates:
+  - metadata:
+      name: logstash-data-access-logs
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 2Gi
+  - metadata:
+      name: logstash-data-action-logs
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 2Gi

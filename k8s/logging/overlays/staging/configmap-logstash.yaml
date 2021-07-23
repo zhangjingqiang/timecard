@@ -1,0 +1,99 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: beats
+  name: configmap-logstash
+data:
+  logstash.yml: |
+    http.host: "0.0.0.0"
+    path.config: /usr/share/logstash/pipeline
+    xpack.monitoring.enabled: false
+  logstash.conf: |
+    input {
+      beats {
+        port => 5044
+      }
+    }
+
+    filter {
+      if "access" in [tags] {
+        mutate {
+          add_field => { "[@metadata][tags]" => "%{tags}" }
+          remove_field => [
+            "agent",
+            "event",
+            "service",
+            "log",
+            "input",
+            "fileset",
+            "ecs",
+            "container",
+            "kubernetes",
+            "@timestamp",
+            "@version",
+            "message",
+            "tags"
+          ]
+        }
+      } else {
+        mutate {
+          add_field => { "[@metadata][tags]" => "%{tags}" }
+          remove_field => [
+            "agent",
+            "event",
+            "service",
+            "log",
+            "input",
+            "fileset",
+            "ecs",
+            "host",
+            "container",
+            "kubernetes",
+            "@timestamp",
+            "@version",
+            "message",
+            "tags"
+          ]
+        }
+      }
+    }
+
+    output {
+      if "access" in [@metadata][tags] {
+        stdout { codec => rubydebug }
+        google_cloud_storage {
+          bucket => "csw-stg1-access-logs-source"
+          json_key_file => "/secrets/service_account/credentials.json"
+          temp_directory => "/tmp/logstash_access_logs"
+          log_file_prefix => "logstash_access_logs"
+          max_file_size_kbytes => 20480
+          output_format => "json"
+          date_pattern => "%Y-%m-%dT%H:00"
+          flush_interval_secs => 2
+          gzip => false
+          gzip_content_encoding => false
+          uploader_interval_secs => 60
+          include_uuid => true
+          include_hostname => true
+        }
+      }
+      if "action" in [@metadata][tags] {
+        stdout { codec => rubydebug }
+        google_cloud_storage {
+          bucket => "csw-stg1-action-logs-source"
+          json_key_file => "/secrets/service_account/credentials.json"
+          temp_directory => "/tmp/logstash_action_logs"
+          log_file_prefix => "logstash_action_logs"
+          max_file_size_kbytes => 20480
+          output_format => "json"
+          date_pattern => "%Y-%m-%dT%H:00"
+          flush_interval_secs => 2
+          gzip => false
+          gzip_content_encoding => false
+          uploader_interval_secs => 60
+          include_uuid => true
+          include_hostname => true
+        }
+      }
+    }

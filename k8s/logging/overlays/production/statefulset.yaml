@@ -1,0 +1,13 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: logstash-log-pipeline
+  namespace: beats
+spec:
+  replicas: 3
+  template:
+    spec:
+      containers:
+      - name: logstash
+        image: asia.gcr.io/contents-search-windows/logstash-log-pipeline:latest
