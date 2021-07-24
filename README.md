@@ -28,7 +28,6 @@ $ terraform apply
 ## Logging
 
 ```
-
 # docker build and push ...
 # Staging
 $ kustomize build ./k8s/logging/staging | kubectl apply -f -
