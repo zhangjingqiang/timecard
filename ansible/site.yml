@@ -1,0 +1,9 @@
+---
+- name: Site
+  hosts: site_host
+  become: true
+  vars_files:
+    - "group_vars/group1.yml"
+    - "group_vars/vault1.yml"
+  roles:
+    - role: common

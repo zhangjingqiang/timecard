@@ -1,6 +1,6 @@
 # Timecard
 
-## Local
+## Development
 
 ```
 $ docker-compose up -d --build
@@ -14,6 +14,14 @@ $ docker-compose exec db psql --username=postgres --dbname=timecard
 ```
 $ kubectl create secret generic appkey --from-file [PATH_TO_DIRECTORY]
 $ kubectl apply -k k8s
+```
+
+## Ansible
+
+```
+$ cd ansible
+$ ansible-playbook -i inventories/staging/hosts --extra-vars "foo=bar" --ask-vault-pass site.yml # staging
+$ ansible-playbook -i inventories/production/hosts --extra-vars "foo=bar" --ask-vault-pass site.yml # production
 ```
 
 ## Terraform
