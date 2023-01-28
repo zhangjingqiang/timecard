@@ -20,14 +20,17 @@ $ kubectl apply -k k8s
 
 ```
 $ cd ansible
-$ ansible-playbook -i inventories/staging/hosts --extra-vars "foo=bar" --ask-vault-pass site.yml # staging
-$ ansible-playbook -i inventories/production/hosts --extra-vars "foo=bar" --ask-vault-pass site.yml # production
+# Staging
+$ ansible-playbook -i inventories/staging/hosts --extra-vars "foo=bar" --ask-vault-pass site.yml
+# Production
+$ ansible-playbook -i inventories/production/hosts --extra-vars "foo=bar" --ask-vault-pass site.yml
 ```
 
 ## Terraform
 
 ```
-$ cd terraform # staging or production
+$ cd terraform
+# Staging or Production
 $ terraform init
 $ terraform plan
 $ terraform apply
