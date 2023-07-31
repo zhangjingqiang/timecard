@@ -31,10 +31,12 @@ $ ansible-playbook -i inventories/production/hosts --extra-vars "foo=bar" --ask-
 ```
 $ cd terraform
 # Staging
+$ cd staging
 $ terraform init
 $ terraform plan
 $ terraform apply
 # Production
+$ cd production
 $ terraform init
 $ terraform plan
 $ terraform apply
