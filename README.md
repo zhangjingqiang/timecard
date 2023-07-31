@@ -30,7 +30,11 @@ $ ansible-playbook -i inventories/production/hosts --extra-vars "foo=bar" --ask-
 
 ```
 $ cd terraform
-# Staging or Production
+# Staging
+$ terraform init
+$ terraform plan
+$ terraform apply
+# Production
 $ terraform init
 $ terraform plan
 $ terraform apply
@@ -39,7 +43,6 @@ $ terraform apply
 ## Logging
 
 ```
-# docker build and push ...
 # Staging
 $ kustomize build ./k8s/logging/staging | kubectl apply -f -
 # Production
