@@ -5,7 +5,6 @@ from flask_cors import CORS
 app = Flask(__name__)
 app.config.from_object("timecard.config.Config")
 db = SQLAlchemy(app)
-db.init_app(app)
 CORS(app, resources={r"/*": {"origins": "*"}})
 api_bp = Blueprint("api_bp", __name__)
 

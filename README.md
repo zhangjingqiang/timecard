@@ -3,10 +3,10 @@
 ## Development
 
 ```
-$ docker-compose up -d --build
-$ docker-compose exec api python manage.py create_db
-$ docker-compose exec api python manage.py seed_db
-$ docker-compose exec db psql --username=postgres --dbname=timecard
+$ docker compose up -d --build
+$ docker compose exec api python manage.py create_db
+$ docker compose exec api python manage.py seed_db
+$ docker compose exec db psql --username=postgres --dbname=timecard
 ```
 
 ## Kubernetes
