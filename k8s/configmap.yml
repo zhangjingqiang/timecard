@@ -9,4 +9,10 @@ data:
   db_pass: 12345
   redis_addr: "redis:6379"
   redis_pass: 12345
+  mongodb_addr: "mongodb:27017"
+  mongodb_user: "mongo"
+  mongodb_pass: 12345
+  elasticsearch_addr: "elasticsearch:9200"
+  elasticsearch_user: "elastic"
+  elasticsearch_pass: 12345
   node_env: "development"

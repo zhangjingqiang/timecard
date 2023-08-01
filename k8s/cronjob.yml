@@ -41,6 +41,36 @@ spec:
                     secretKeyRef:
                       name: timecard
                       key: redis_pass
+                - name: MONGODB_ADDR
+                  valueFrom:
+                    secretKeyRef:
+                      name: timecard
+                      key: mongodb_addr
+                - name: MONGODB_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: timecard
+                      key: mongodb_user
+                - name: MONGODB_PASS
+                  valueFrom:
+                    secretKeyRef:
+                      name: timecard
+                      key: mongodb_pass
+                - name: ELASTICSEARCH_ADDR
+                  valueFrom:
+                    secretKeyRef:
+                      name: timecard
+                      key: elasticsearch_addr
+                - name: ELASTICSEARCH_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: timecard
+                      key: elasticsearch_user
+                - name: ELASTICSEARCH_PASS
+                  valueFrom:
+                    secretKeyRef:
+                      name: timecard
+                      key: elasticsearch_pass
                 - name: GOOGLE_APPLICATION_CREDENTIALS
                   value: /secrets/appkey.json
               volumeMounts:

@@ -9,6 +9,34 @@ $ docker compose exec api python manage.py seed_db
 $ docker compose exec db psql --username=postgres --dbname=timecard
 ```
 
+### Check data in Redis
+
+```
+$ docker exec -it timecard-redis-1 /bin/bash
+# redis-cli -h 127.0.0.1 -p 6379 -a "12345"
+127.0.0.1:6379> KEYS *
+127.0.0.1:6379> GET date
+```
+
+### Check data in MongoDB
+
+```
+$ docker exec -it timecard-mongodb-1 mongosh -u mongo -p 12345
+test> show dbs
+test> use timecard
+switched to db timecard
+timecard> show collections
+timecard
+timecard> db.timecard.find().pretty()
+```
+
+### Check data in Elasticsearch
+
+```
+$ docker exec -it timecard-elasticsearch-1 /bin/bash
+$ curl -u elastic:12345 localhost:9200/timecard/_search
+```
+
 ## Kubernetes
 
 ```

@@ -26,12 +26,22 @@ services:
       DB_PASS: 12345
       REDIS_ADDR: redis:6379
       REDIS_PASS: 12345
+      MONGODB_ADDR: mongodb:27017
+      MONGODB_USER: mongo
+      MONGODB_PASS: 12345
+      ELASTICSEARCH_ADDR: elasticsearch:9200
+      ELASTICSEARCH_USER: elastic
+      ELASTICSEARCH_PASS: 12345
     depends_on:
       - db
       - redis
+      - mongodb
+      - elasticsearch
     links:
       - db
       - redis
+      - mongodb
+      - elasticsearch
 
   client:
     build:
@@ -60,20 +70,47 @@ services:
     
   db:
     image: postgres:13-alpine
+    environment:
+      POSTGRES_DB: timecard
+      POSTGRES_PASSWORD: 12345
     volumes:
       - postgres_data:/var/lib/postgresql/data/
-    environment:
-      POSTGRES_PASSWORD: 12345
-      POSTGRES_DB: timecard
 
   redis:
     image: redis
     command: redis-server --requirepass 12345
     ports:
-      - "6379:6379"
+      - 6379:6379
     volumes:
       - redis_data:/data
+
+  mongodb:
+    image: mongo
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mongo
+      - MONGO_INITDB_ROOT_PASSWORD=12345
+    restart: on-failure
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb_data:/data/db
+
+  elasticsearch:
+    image: elasticsearch:8.8.1
+    ports:
+      - 9200:9200
+      - 9300:9300
+    environment:
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - discovery.type=single-node
+      - ELASTIC_PASSWORD=12345
+      - xpack.security.enabled=false
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
 
 volumes:
   postgres_data:
   redis_data:
+  mongodb_data:
+  elasticsearch_data:
