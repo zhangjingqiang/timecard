@@ -1,4 +1,4 @@
-.PHONY: run init_db stop
+.PHONY: run init_db exec_db stop
 
 run: 
 	docker compose up -d --build
