@@ -3,10 +3,9 @@
 ## Development
 
 ```
-$ docker compose up -d --build
-$ docker compose exec api python manage.py create_db
-$ docker compose exec api python manage.py seed_db
-$ docker compose exec db psql --username=postgres --dbname=timecard
+$ make run
+$ make init_db
+$ make exec_db
 ```
 
 ### Check data in Redis
