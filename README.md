@@ -12,7 +12,7 @@ $ make exec_db
 
 ```
 $ docker exec -it timecard-redis-1 /bin/bash
-# redis-cli -h 127.0.0.1 -p 6379 -a "12345"
+# redis-cli -h 127.0.0.1 -p 6379 -a 12345
 127.0.0.1:6379> KEYS *
 127.0.0.1:6379> GET date
 ```
@@ -34,6 +34,14 @@ timecard> db.timecard.find().pretty()
 ```
 $ docker exec -it timecard-elasticsearch-1 /bin/bash
 $ curl -u elastic:12345 localhost:9200/timecard/_search
+```
+
+### Check data in RabbitMQ
+
+```
+$ docker exec -it timecard-rabbitmq-1 /bin/bash
+# rabbitmqadmin list queues -u rabbitmquser -p 12345
+# rabbitmqadmin get queue=timecard -u rabbitmquser -p 12345
 ```
 
 ## Kubernetes

@@ -13,6 +13,8 @@ services:
       - ./api/.env
     depends_on:
       - db
+    networks:
+      - dev-network
 
   batch:
     build:
@@ -32,16 +34,39 @@ services:
       ELASTICSEARCH_ADDR: elasticsearch:9200
       ELASTICSEARCH_USER: elastic
       ELASTICSEARCH_PASS: 12345
+      RABBITMQ_ADDR: rabbitmq:5672
+      RABBITMQ_USER: rabbitmquser
+      RABBITMQ_PASS: 12345
     depends_on:
+      - health-check
       - db
       - redis
       - mongodb
       - elasticsearch
+      - rabbitmq
     links:
       - db
       - redis
       - mongodb
       - elasticsearch
+      - rabbitmq
+    networks:
+      - dev-network
+
+  logger:
+    build:
+      context: ./logger
+      dockerfile: Dockerfile
+    environment:
+      AMQP_SERVER_URL: amqp://rabbitmquser:12345@rabbitmq:5672/
+    restart: always
+    depends_on:
+      - health-check
+      - rabbitmq
+    links:
+      - rabbitmq
+    networks:
+      - dev-network
 
   client:
     build:
@@ -56,6 +81,8 @@ services:
       - NODE_ENV=development
     depends_on:
       - api
+    networks:
+      - dev-network
 
   nginx:
     build:
@@ -67,7 +94,23 @@ services:
     depends_on:
       - api
       - client
-    
+    networks:
+      - dev-network
+
+  health-check:
+    build:
+      context: ./health-check
+      dockerfile: Dockerfile
+    command: ["./wait-for-it.sh", "db:5432", "redis:6379", "mongodb:27017", "elasticsearch:9200", "rabbitmq:5672", "--", "/bin/sh", "-c", "exit 0"]
+    depends_on:
+      - db
+      - redis
+      - mongodb
+      - elasticsearch
+      - rabbitmq
+    networks:
+      - dev-network
+
   db:
     image: postgres:13-alpine
     environment:
@@ -75,14 +118,28 @@ services:
       POSTGRES_PASSWORD: 12345
     volumes:
       - postgres_data:/var/lib/postgresql/data/
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "timecard", "-h", "db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dev-network
 
   redis:
     image: redis
     command: redis-server --requirepass 12345
     ports:
       - 6379:6379
+    healthcheck:
+      test: redis-cli -h 127.0.0.1 -p 6379 -a 12345 ping
+      interval: 1s
+      timeout: 3s
+      retries: 30
     volumes:
       - redis_data:/data
+    networks:
+      - dev-network
 
   mongodb:
     image: mongo
@@ -92,8 +149,16 @@ services:
     restart: on-failure
     ports:
       - 27017:27017
+    healthcheck:
+      test: echo 'db.runCommand({serverStatus:1}).ok' | mongo admin -u mongo -p 12345 --quiet | grep 1
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
     volumes:
       - mongodb_data:/data/db
+    networks:
+      - dev-network
 
   elasticsearch:
     image: elasticsearch:8.8.1
@@ -106,11 +171,42 @@ services:
       - discovery.type=single-node
       - ELASTIC_PASSWORD=12345
       - xpack.security.enabled=false
+    healthcheck:
+      test: curl -u elastic:12345 -s -f elasticsearch:9200/_cat/health >/dev/null || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 50
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - dev-network
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      - RABBITMQ_DEFAULT_USER=rabbitmquser
+      - RABBITMQ_DEFAULT_PASS=12345
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:15672"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    restart: on-failure
+    networks:
+      - dev-network
 
 volumes:
   postgres_data:
   redis_data:
   mongodb_data:
   elasticsearch_data:
+  rabbitmq_data:
+
+networks:
+  dev-network:
+    driver: bridge

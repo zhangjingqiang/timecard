@@ -71,6 +71,21 @@ spec:
                     secretKeyRef:
                       name: timecard
                       key: elasticsearch_pass
+                - name: RABBITMQ_ADDR
+                  valueFrom:
+                    secretKeyRef:
+                      name: timecard
+                      key: rabbitmq_addr
+                - name: RABBITMQ_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: timecard
+                      key: rabbitmq_user
+                - name: RABBITMQ_PASS
+                  valueFrom:
+                    secretKeyRef:
+                      name: timecard
+                      key: rabbitmq_pass
                 - name: GOOGLE_APPLICATION_CREDENTIALS
                   value: /secrets/appkey.json
               volumeMounts:

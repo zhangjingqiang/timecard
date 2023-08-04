@@ -22,6 +22,7 @@ func Init() *gorm.DB {
 
 	db, err = gorm.Open("postgres", psqlconn)
 	if err != nil {
+		fmt.Println(err)
 		panic(err)
 	}
 

@@ -94,3 +94,40 @@ spec:
           secret:
             secretName: appkey
       restartPolicy: Always
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: timecard-logger
+  namespace: timecard
+spec:
+  selector:
+    matchLabels:
+      app: timecard-logger
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: timecard-logger
+    spec:
+      containers:
+        - name: timecard-logger
+          image: asia.gcr.io/timecard-proj/timecard-logger
+          env:
+            - name: AMQP_SERVER_URL
+              valueFrom:
+                secretKeyRef:
+                  name: timecard
+                  key: amqp_server_url
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /secrets/appkey.json
+          volumeMounts:
+            - name: service-account-credentials
+              mountPath: /secrets
+              readOnly: true
+      volumes:
+        - name: service-account-credentials
+          secret:
+            secretName: appkey
+      restartPolicy: Always

@@ -6,6 +6,7 @@ require (
 	github.com/elastic/go-elasticsearch/v8 v8.9.0
 	github.com/go-redis/redis/v8 v8.10.0
 	github.com/jinzhu/gorm v1.9.16
+	github.com/rabbitmq/amqp091-go v1.8.1
 	go.mongodb.org/mongo-driver v1.12.0
 )
 

@@ -10,6 +10,7 @@ import (
 	"log"
 	"time"
 
+	amqp "github.com/rabbitmq/amqp091-go"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -20,6 +21,7 @@ func main() {
 	rdb := db.NewRedisClient()
 	mongo := db.NewMongoClient()
 	es := db.NewESClient()
+	mq := db.NewRabbitMQClient()
 
 	// Read from PostgreSQL
 	var t []models.Timecard
@@ -38,7 +40,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("Redis inserted value:", resRedis)
+	fmt.Println("Redis inserted data:", resRedis)
 
 	// Write to MongoDB
 	collection := mongo.Database("timecard").Collection("timecard")
@@ -100,7 +102,7 @@ func main() {
 	if err := json.NewDecoder(resEs.Body).Decode(&r); err != nil {
 		log.Fatalf("Error parsing the response body: %s", err)
 	}
-	fmt.Println("Elasticsearch inserted value:")
+	fmt.Println("Elasticsearch inserted data:")
 	log.Printf(
 		"[%s] %d hits; took: %dms",
 		resEs.Status(),
@@ -111,6 +113,45 @@ func main() {
 		log.Printf(" * ID=%s, %s", hit.(map[string]interface{})["_id"], hit.(map[string]interface{})["_source"])
 	}
 
-	// Close database
+	// Send to RabbitMQ
+	channelRabbitMQ, err := mq.Channel()
+	if err != nil {
+		panic(err)
+	}
+	defer channelRabbitMQ.Close()
+
+	queue, err := channelRabbitMQ.QueueDeclare(
+		"timecard", // queue name
+		true,       // durable
+		false,      // auto delete
+		false,      // exclusive
+		false,      // no wait
+		nil,        // arguments
+	)
+	if err == nil {
+		fmt.Println("RabbitMQ inserted data:")
+		log.Printf("producer: declared queue (%q %d messages, %d consumers), binding to Exchange (key %q)",
+			queue.Name, queue.Messages, queue.Consumers, "timecard")
+	} else {
+		log.Fatalf("producer: Queue Declare: %s", err)
+	}
+
+	err = channelRabbitMQ.PublishWithContext(ctx,
+		"",         // exchange
+		queue.Name, // routing key
+		false,      // mandatory
+		false,      // immediate
+		amqp.Publishing{
+			ContentType: "text/plain",
+			Body:        []byte(t[0].Date),
+		})
+	if err != nil {
+		log.Fatalf("producer: error in publish: %s", err)
+	}
+
+	// Close connection
+	mq.Close()
+	mongo.Disconnect(context.TODO())
+	rdb.Close()
 	db.Close()
 }
