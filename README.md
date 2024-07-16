@@ -64,7 +64,7 @@ $ ansible-playbook -i inventories/production/hosts --extra-vars "foo=bar" --ask-
 ## Terraform
 
 ```
-$ cd terraform
+$ cd terraform/{aws|gcp}
 # Staging
 $ cd staging
 $ terraform init
