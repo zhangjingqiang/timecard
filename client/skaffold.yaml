@@ -1,0 +1,16 @@
+apiVersion: skaffold/v4beta11
+kind: Config
+metadata:
+  name: skaffold
+build:
+  local:
+    push: false
+    useDockerCLI: true
+  artifacts:
+    - image: frontend-service
+      context: .
+      docker:
+        dockerfile: Dockerfile
+manifests:
+  rawYaml:
+    - manifests.yaml

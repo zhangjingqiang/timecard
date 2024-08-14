@@ -1,5 +1,13 @@
 # Timecard
 
+## Start with Skaffold
+
+```bash
+$ skaffold dev
+```
+
+Add `127.0.0.1 myapp.local` to `/etc/hosts`. Access http://myapp.local.
+
 ## Development
 
 ```
