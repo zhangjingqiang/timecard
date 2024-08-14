@@ -14,6 +14,7 @@
 - Python
 - Go
 - React
+- PostgreSQL
 - Redis
 - MongoDB
 - RabbitMQ
@@ -124,3 +125,7 @@ $ terraform init
 $ terraform plan
 $ terraform apply
 ```
+
+## License
+
+MIT
