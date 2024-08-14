@@ -56,7 +56,13 @@ $ docker exec -it timecard-rabbitmq-1 /bin/bash
 
 ```
 $ kubectl create secret generic appkey --from-file [PATH_TO_DIRECTORY]
-$ kubectl apply -k k8s
+$ kubectl apply -k k8s/kustomize
+```
+
+## ArgoCD
+
+```
+$ kbuectl apply -k argocd
 ```
 
 ## Ansible
@@ -89,7 +95,7 @@ $ terraform apply
 
 ```
 # Staging
-$ kustomize build ./k8s/logging/staging | kubectl apply -f -
+$ kustomize build ./k8s/kustomize/logging/staging | kubectl apply -f -
 # Production
-$ kustomize build ./k8s/logging/production | kubectl apply -f -
+$ kustomize build ./k8s/kustomize/logging/production | kubectl apply -f -
 ```

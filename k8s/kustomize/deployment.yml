@@ -39,7 +39,7 @@ spec:
               mountPath: /secrets
               readOnly: true
           ports:
-          - containerPort: 5000
+            - containerPort: 5000
       volumes:
         - name: service-account-credentials
           secret:
@@ -78,13 +78,13 @@ spec:
               mountPath: /secrets
               readOnly: true
           ports:
-          - containerPort: 3000
+            - containerPort: 3000
           livenessProbe:
             initialDelaySeconds: 10
             periodSeconds: 10
             exec:
               command:
-                - "true"
+                - 'true'
           readinessProbe:
             httpGet:
               path: /healthz
