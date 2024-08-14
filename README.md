@@ -1,5 +1,30 @@
 # Timecard
 
+## Stack
+
+- Kubernetes
+- ArgoCD
+- Helm
+- Kustomize
+- Skaffold
+- GitHub Actions
+- AWS
+- GCP
+- Nginx
+- Python
+- Go
+- React
+- Redis
+- MongoDB
+- RabbitMQ
+- Elasticsearch
+- Logstash
+- Filebeat
+- Docker
+- Docker Compose
+- Ansible
+- Terraform
+
 ## Start with Skaffold
 
 ```bash
