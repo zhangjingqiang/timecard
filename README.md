@@ -29,6 +29,12 @@
 ## Start with Skaffold
 
 ```bash
+# API
+$ cd api
+$ skaffold dev
+
+# Client
+$ cd client
 $ skaffold dev
 ```
 
