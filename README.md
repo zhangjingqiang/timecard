@@ -65,6 +65,15 @@ $ kubectl apply -k k8s/kustomize
 $ kbuectl apply -k argocd
 ```
 
+## Logging
+
+```
+# Staging
+$ kustomize build ./k8s/kustomize/logging/staging | kubectl apply -f -
+# Production
+$ kustomize build ./k8s/kustomize/logging/production | kubectl apply -f -
+```
+
 ## Ansible
 
 ```
@@ -89,13 +98,4 @@ $ cd production
 $ terraform init
 $ terraform plan
 $ terraform apply
-```
-
-## Logging
-
-```
-# Staging
-$ kustomize build ./k8s/kustomize/logging/staging | kubectl apply -f -
-# Production
-$ kustomize build ./k8s/kustomize/logging/production | kubectl apply -f -
 ```
