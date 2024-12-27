@@ -1,5 +1,45 @@
 # Timecard
 
+## Stack
+
+- Kubernetes
+- ArgoCD
+- Helm
+- Kustomize
+- Skaffold
+- GitHub Actions
+- AWS
+- GCP
+- Nginx
+- Python
+- Go
+- React
+- PostgreSQL
+- Redis
+- MongoDB
+- RabbitMQ
+- Elasticsearch
+- Logstash
+- Filebeat
+- Docker
+- Docker Compose
+- Ansible
+- Terraform
+
+## Start with Skaffold
+
+```bash
+# API
+$ cd api
+$ skaffold dev
+
+# Client
+$ cd client
+$ skaffold dev
+```
+
+Add `127.0.0.1 myapp.local` to `/etc/hosts`. Access http://myapp.local.
+
 ## Development
 
 ```
@@ -48,7 +88,22 @@ $ docker exec -it timecard-rabbitmq-1 /bin/bash
 
 ```
 $ kubectl create secret generic appkey --from-file [PATH_TO_DIRECTORY]
-$ kubectl apply -k k8s
+$ kubectl apply -k k8s/kustomize
+```
+
+## ArgoCD
+
+```
+$ kbuectl apply -k argocd
+```
+
+## Logging
+
+```
+# Staging
+$ kustomize build ./k8s/kustomize/logging/staging | kubectl apply -f -
+# Production
+$ kustomize build ./k8s/kustomize/logging/production | kubectl apply -f -
 ```
 
 ## Ansible
@@ -77,11 +132,6 @@ $ terraform plan
 $ terraform apply
 ```
 
-## Logging
+## License
 
-```
-# Staging
-$ kustomize build ./k8s/logging/staging | kubectl apply -f -
-# Production
-$ kustomize build ./k8s/logging/production | kubectl apply -f -
-```
+MIT

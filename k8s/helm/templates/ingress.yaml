@@ -1,0 +1,12 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: timecard-ingress
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: timecard
+    networking.gke.io/managed-certificates: certificate-tools
+    kubernetes.io/ingress.class: 'gce'
+spec:
+  backend:
+    serviceName: timecard-web
+    servicePort: 80

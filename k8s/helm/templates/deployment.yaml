@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+  labels:
+    app: backend
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: 'my-registry/backend-service:{{ .Values.env.APP_VERSION }}'
+          env:
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: timecard
+                  key: db_user
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: timecard
+                  key: db_name
+            - name: DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: timecard
+                  key: db_pass
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /secrets/appkey.json
+          volumeMounts:
+            - name: service-account-credentials
+              mountPath: /secrets
+              readOnly: true
+          ports:
+            - containerPort: 5000
+          readinessProbe:
+{{ toYaml .Values.readinessProbe | indent 12 }}
+          livenessProbe:
+{{ toYaml .Values.livenessProbe | indent 12 }}
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+      volumes:
+        - name: service-account-credentials
+          secret:
+            secretName: appkey
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+  labels:
+    app: frontend
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: 'my-registry/frontend-service:{{ .Values.env.APP_VERSION }}'
+          env:
+            - name: NODE_ENV
+              valueFrom:
+                secretKeyRef:
+                  name: timecard
+                  key: node_env
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /secrets/appkey.json
+          volumeMounts:
+            - name: service-account-credentials
+              mountPath: /secrets
+              readOnly: true
+          ports:
+            - containerPort: 3000
+          readinessProbe:
+{{ toYaml .Values.readinessProbe | indent 12 }}
+          livenessProbe:
+{{ toYaml .Values.livenessProbe | indent 12 }}
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+      volumes:
+        - name: service-account-credentials
+          secret:
+            secretName: appkey

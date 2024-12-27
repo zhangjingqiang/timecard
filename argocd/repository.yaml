@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: github-creds
+  namespace: argocd
+  labels:
+    argocd.argoproj.io/secret-type: repository
+stringData:
+  url: https://github.com/my-org/my-app
+  type: git
+  githubAppID: '111111'
+  githubAppInstallationID: '222222'
+  githubAppPrivateKey: |
+    -----BEGIN RSA PRIVATE KEY-----
+    3333333333333333333333333333333
+    -----END RSA PRIVATE KEY-----
