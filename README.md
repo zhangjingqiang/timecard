@@ -3,11 +3,7 @@
 ## Stack
 
 - Kubernetes
-- ArgoCD
-- Helm
 - Kustomize
-- Skaffold
-- GitHub Actions
 - AWS
 - GCP
 - Nginx
@@ -25,20 +21,6 @@
 - Docker Compose
 - Ansible
 - Terraform
-
-## Start with Skaffold
-
-```bash
-# API
-$ cd api
-$ skaffold dev
-
-# Client
-$ cd client
-$ skaffold dev
-```
-
-Add `127.0.0.1 myapp.local` to `/etc/hosts`. Access http://myapp.local.
 
 ## Development
 
@@ -89,12 +71,6 @@ $ docker exec -it timecard-rabbitmq-1 /bin/bash
 ```
 $ kubectl create secret generic appkey --from-file [PATH_TO_DIRECTORY]
 $ kubectl apply -k k8s/kustomize
-```
-
-## ArgoCD
-
-```
-$ kbuectl apply -k argocd
 ```
 
 ## Logging
